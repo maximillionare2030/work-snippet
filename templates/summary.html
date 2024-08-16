@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/devices_styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<div class="container my-4">
+
+    <div class="d-md-flex justify-content-between align-items-center mb-2">
+        <span class="title">
+            <h2>{% block title %} Devices {% endblock %}</h2>
+        </span>
+        <form method="POST" action="{{ url_for('setup') }}">
+            <button id="sendAllButton" type="button">SEND ALL</button>
+        </form>
+    </div>
+
+    <form method="POST" action="{{ url_for('setup') }}">
+    {% for tabs in range(1, num_ports + 1) %}
+        <div class="custom-container">
+            <div class="flex-container">
+                <label for="port">Select Port</label>
+                <select name="port{{ tabs }}">
+                    <option selected>{{ port_dict[tabs][0]._SerialTestFixture__port }}</option>
+                    {% for option in available_ports %}
+                        <option>{{ option }}</option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <button class="portButton" id="button{{ tabs }}" type="button">{{ port_dict[tabs][1] }}</button>
+            </div>
+
+            <div class="flex-container">
+                <label for="baud_rate">Baud Rate</label>
+                <select name="baud_rate{{ tabs }}">
+                    <option selected>{{ port_dict[tabs][0]._SerialTestFixture__baud_rate }}</option>
+                    <option>2400</option>
+                    <option>4800</option>
+                    <option>9600</option>
+                    <option>14400</option>
+                    <option>19200</option>
+                    <option>38400</option>
+                    <option>57600</option>
+                    <option>115200</option>
+                    <option>460800</option>
+                </select>
+                <label for="parity">Parity</label>
+                <select name="parity{{ tabs }}">
+                    <option selected>{{ port_dict[tabs][0]._SerialTestFixture__parity }}</option>
+                    <option>None</option>
+                    <option>Odd</option>
+                    <option>Even</option>
+                </select>
+                <label for="data_bits">Databits</label>
+                <select name="data_bits{{ tabs }}">
+                    <option disabled>{{ port_dict[tabs][0]._SerialTestFixture__data_bits }}</option>
+                    <option>8</option>
+                    <option>7</option>
+                </select>
+                <label for="stop_bits">Stopbits</label>
+                <select name="stop_bits{{ tabs }}">
+                    <option disabled>{{ port_dict[tabs][0]._SerialTestFixture__stop_bits }}</option>
+                    <option>1</option>
+                    <option>1.5</option>
+                    <option>2.0</option>
+                </select>
+            </div>
+
+            <div class="flex-container">
+                <label for="write">Write</label>
+                <input class="inputs write-input" name="write{{ tabs }}" id="writeInput{{ tabs }}" data-port-index="{{ tabs }}">
+                <button id="send-write{{ tabs }}" class="send-write-button" data-port-index="{{ tabs }}" type="button">SEND</button><br>
+                <label for="read">Read</label>
+                <input class="inputs read-input" name="read{{ tabs }}" id="readInput{{ tabs }}" data-port-index="{{ tabs }}">
+                <button id="send-read{{ tabs }}" class="send-read-button" data-port-index="{{ tabs }}">SEND</button>
+                <button onclick="toggleReadAll('{{tabs}}')" id="read-all{{ tabs }}" type="button"> READ ALL </button>
+                <textarea class="inputs-read" placeholder="" id="read_data{{ tabs }}" disabled style="overflow-x: auto;"></textarea>
+            </div>
+
+            <div class="flex-container">
+                <!-- Log Settings -->
+                <button id="createLogButton{{ tabs }}" class="create-log-button" type="button">Log Settings</button>
+            </div>
+
+            <div id="logPopup{{ tabs }}" class="log-popup" style="display: none;">
+                <p style="margin-bottom:0px;">
+                    Create Log File: <i>{{port_dict[tabs][0]._SerialTestFixture__port}} </i>
+                    <span style="font-size:10px;">({{port_dict[tabs][2]}} in USE)</span>
+                </p>
+
+                <div style="display: flex; flex-direction: column;">
+                    <label>File Path</label>
+                    <input id="file-path{{ tabs }}" type="text" placeholder="app\devices\Logs"/> 
+                    <label>File Name</label>
+                    <input id="file-name{{ tabs }}" type="text" placeholder=".bin File (Don't include .bin)"/> 
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <button onclick="create_log(this)" data-port-index="{{ tabs }}">Create</button>
+                    <button onclick="toggle_logging(this)" data-port-index="{{ tabs }}" class="toggle-logging-button" type="button">Logging: {{port_dict[tabs][3]}}</button>
+                    <button class="closePopupButton" style="float: right;" type="button">Close</button>
+                </div>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
+    </form>
+
+    <div>
+        <div id="bottom-buttons">
+            <form method="post" action="{{ url_for('add') }}">
+                <button>ADD PORT</button>
+            </form>
+            <form method="post" action="{{ url_for('delete') }}">
+                <button>DELETE PORT</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/device_scripts.js') }}"></script>
+{% endblock %}
